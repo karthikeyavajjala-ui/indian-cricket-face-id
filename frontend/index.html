@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>INDIAN CRICKET FACE ID · AI player identification</title>
+<meta name="description" content="AI-powered Indian cricket player identification using computer vision and machine learning." />
+<link rel="icon" href="/static/assets/img/favicon.svg" type="image/svg+xml" />
+<link rel="stylesheet" href="/static/assets/css/app.css" />
+</head>
+<body>
+<!-- animated stadium background -->
+<canvas id="fx-particles" aria-hidden="true"></canvas>
+<div class="fx-grid" aria-hidden="true"></div>
+<div class="fx-beams" aria-hidden="true"><span></span><span></span><span></span></div>
+<div class="fx-grain" aria-hidden="true"></div>
+
+<header class="topbar">
+  <a class="brand" href="#/" aria-label="INDIAN CRICKET FACE ID home">
+    <span class="brand-mark" aria-hidden="true">
+      <svg viewBox="0 0 48 48" width="34" height="34">
+        <defs><linearGradient id="bm" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#5eead4"/><stop offset="55%" stop-color="#38bdf8"/>
+          <stop offset="100%" stop-color="#a3e635"/></linearGradient></defs>
+        <circle cx="24" cy="24" r="21" fill="none" stroke="url(#bm)" stroke-width="2" opacity=".55"/>
+        <path d="M24 5a19 19 0 0 1 0 38" fill="none" stroke="url(#bm)" stroke-width="2" opacity=".9"/>
+        <path d="M14 17l5-4M14 24h7M14 31l5 4" stroke="#a3e635" stroke-width="2.2" stroke-linecap="round"/>
+        <path d="M32 13v22" stroke="#e2e8f0" stroke-width="2.6" stroke-linecap="round"/>
+        <path d="M28.5 13v22M35.5 13v22" stroke="#94a3b8" stroke-width="1.6" stroke-linecap="round"/>
+        <circle cx="24" cy="24" r="3.4" fill="#ff8a3d"/>
+      </svg>
+    </span>
+    <span class="brand-text">
+      <b>CRICKET FACE ID</b>
+      <i>computer vision · india</i>
+    </span>
+  </a>
+
+  <nav class="nav" id="nav">
+    <a href="#/identify" data-nav="identify">Identify</a>
+    <a href="#/players" data-nav="players">Players</a>
+    <a href="#/dashboard" data-nav="dashboard">Dashboard</a>
+    <a href="#/model" data-nav="model">Model</a>
+    <a href="#/dataset" data-nav="dataset">Dataset</a>
+    <a href="#/about" data-nav="about">Responsible AI</a>
+  </nav>
+
+  <div class="topbar-right">
+    <span class="pill" id="pill-model" title="active model status"><i class="dot"></i><span>checking…</span></span>
+    <button class="btn btn-ghost btn-sm" id="btn-menu" aria-label="Menu">☰</button>
+  </div>
+</header>
+
+<div class="banner banner-warn hidden" id="banner-warn"></div>
+<div class="banner banner-demo hidden" id="banner-demo"></div>
+
+<main id="view-root">
+
+  <!-- ══════════════════════════ LANDING ══════════════════════════ -->
+  <section class="view" id="view-landing">
+    <div class="hero">
+      <div class="hero-copy">
+        <span class="eyebrow"><i class="pulse-dot"></i> AI-powered computer vision · machine learning</span>
+        <h1>Identify supported Indian cricket players<br /><span class="grad">from a single photo.</span></h1>
+        <p class="lede">
+          Face detection, geometric alignment, descriptor extraction and a trained classifier —
+          the whole pipeline runs locally. Every answer ships with a confidence score, the full
+          top-3 ranking, and an honest description of what the model can and cannot do.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#/identify">Identify Player
+            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <a class="btn btn-ghost" href="#/players">Explore Players</a>
+          <a class="btn btn-ghost" href="#/about">How It Works</a>
+        </div>
+        <div class="hero-stats" id="hero-stats"></div>
+      </div>
+
+      <div class="hero-visual">
+        <div class="scan-card glass">
+          <div class="scan-head">
+            <span class="scan-title">LIVE PIPELINE</span>
+            <span class="scan-chip">opencv · scikit-learn</span>
+          </div>
+          <div class="pipeline" id="pipeline-flow">
+            <div class="pipe-step" data-step="0">
+              <span class="pipe-ico">📷</span>
+              <div><b>Camera / Image</b><i>JPG · PNG · WEBP · live frame</i></div>
+            </div>
+            <div class="pipe-arrow"></div>
+            <div class="pipe-step" data-step="1">
+              <span class="pipe-ico">🔍</span>
+              <div><b>Face Detection</b><i>Haar cascade / YuNet CNN</i></div>
+            </div>
+            <div class="pipe-arrow"></div>
+            <div class="pipe-step" data-step="2">
+              <span class="pipe-ico">🧠</span>
+              <div><b>AI Analysis</b><i>align → descriptor → classifier</i></div>
+            </div>
+            <div class="pipe-arrow"></div>
+            <div class="pipe-step" data-step="3">
+              <span class="pipe-ico">🏏</span>
+              <div><b>Player Identified</b><i>confidence + top-3 + profile</i></div>
+            </div>
+          </div>
+          <div class="scan-foot">
+            <span class="mini-pill" id="pill-threshold">—</span>
+            <span class="mini-pill" id="pill-engine">—</span>
+            <span class="mini-pill" id="pill-classes">—</span>
+          </div>
+        </div>
+        <div class="hero-glow" aria-hidden="true"></div>
+      </div>
+    </div>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>What this build actually does</h2>
+        <p>No mocked responses anywhere — every number below comes from your own trained model.</p>
+      </div>
+      <div class="grid grid-4" id="feature-grid">
+        <article class="card glass reveal">
+          <span class="card-ico">🎯</span>
+          <h3>Identity from the dataset</h3>
+          <p>Only the players whose photos you placed in <code>dataset/&lt;Player&gt;/</code> can be
+             recognised. Anyone outside the dataset is reported as <b>Unknown</b>.</p>
+        </article>
+        <article class="card glass reveal">
+          <span class="card-ico">📊</span>
+          <h3>Confidence, top-3, and rejection</h3>
+          <p>Probabilities come from the classifier. Below the configured threshold the answer is
+             refused instead of guessed, and the runner-up scores are shown for scrutiny.</p>
+        </article>
+        <article class="card glass reveal">
+          <span class="card-ico">🧪</span>
+          <h3>Measured, not claimed</h3>
+          <p>The Model page reports accuracy, precision, recall, F1, confusion matrix and
+             cross-validation straight from the trained artefact.</p>
+        </article>
+        <article class="card glass reveal">
+          <span class="card-ico">🛡️</span>
+          <h3>Responsible by default</h3>
+          <p>No surveillance, no access control, no demographic inference — and an explicit
+             statement of what the system cannot do.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>Supported players</h2>
+        <p id="landing-supported-note">Players present in the active model's training set.</p>
+      </div>
+      <div class="grid grid-4" id="landing-players"></div>
+      <div class="row-center"><a class="btn btn-ghost" href="#/players">View all profiles</a></div>
+    </section>
+
+    <section class="section">
+      <div class="card glass risk-card reveal">
+        <h3>⚠️ Responsible use</h3>
+        <p>
+          This system is a demonstration of facial identification technology and should not be used
+          for surveillance, law enforcement, access control, or high-impact decisions without
+          appropriate safeguards. It is trained on a small, self-supplied image set and cannot
+          identify every Indian cricketer — only the people represented in its training data.
+        </p>
+      </div>
+    </section>
+  </section>
+
+  <!-- ══════════════════════════ IDENTIFY ══════════════════════════ -->
+  <section class="view hidden" id="view-identify">
+    <div class="section-head">
+      <h2>Identify a player</h2>
+      <p>Upload a photo or capture one with your camera. Detection, alignment, encoding and
+         classification all happen on your machine.</p>
+    </div>
+
+    <div class="identify-grid">
+      <div class="card glass panel" id="panel-input">
+        <div class="tabs" role="tablist">
+          <button class="tab active" data-mode="upload" role="tab">📁 Upload image</button>
+          <button class="tab" data-mode="camera" role="tab">🎥 Live camera</button>
+        </div>
+
+        <div class="mode" id="mode-upload">
+          <div class="dropzone" id="dropzone" tabindex="0" role="button"
+               aria-label="Drop an image or click to browse">
+            <div class="dz-art" aria-hidden="true">
+              <svg viewBox="0 0 120 90" width="120" height="90">
+                <rect x="8" y="14" width="104" height="66" rx="10" fill="none" stroke="currentColor" stroke-width="2.5" opacity=".6"/>
+                <circle cx="60" cy="47" r="19" fill="none" stroke="currentColor" stroke-width="2.5" opacity=".85"/>
+                <circle cx="60" cy="40" r="6" fill="currentColor" opacity=".7"/>
+                <path d="M44 63a18 18 0 0 1 32 0" fill="currentColor" opacity=".45"/>
+                <path d="M88 8l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                <path d="M94 2v12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <b>Drop a player photo here</b>
+            <span>or click to browse · JPG, JPEG, PNG, WEBP · up to 12 MB</span>
+            <input type="file" id="file-input" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" hidden />
+          </div>
+          <div class="thumb-row hidden" id="upload-preview-row">
+            <img id="upload-preview" alt="Selected image preview" />
+            <div class="thumb-meta">
+              <b id="upload-name">—</b>
+              <span id="upload-size">—</span>
+            </div>
+            <button class="btn btn-primary btn-sm" id="btn-analyze-upload">Analyze image</button>
+          </div>
+        </div>
+
+        <div class="mode hidden" id="mode-camera">
+          <div class="cam-stage">
+            <video id="cam-video" playsinline muted autoplay></video>
+            <div class="cam-overlay" id="cam-overlay">
+              <div class="cam-frame"></div>
+              <span class="cam-hint">Keep one face centred, well lit, facing the camera</span>
+            </div>
+          </div>
+          <canvas id="cam-canvas" hidden></canvas>
+          <div class="cam-actions">
+            <button class="btn btn-primary btn-sm" id="btn-cam-start">Start camera</button>
+            <button class="btn btn-ghost btn-sm" id="btn-cam-capture" disabled>Capture frame</button>
+            <button class="btn btn-ghost btn-sm" id="btn-cam-stop" disabled>Stop camera</button>
+            <button class="btn btn-primary btn-sm hidden" id="btn-cam-analyze">Analyze capture</button>
+          </div>
+          <p class="hint" id="cam-hint">Camera access needs permission; on non-HTTPS origins browsers
+             block it — use the upload mode there. Nothing is uploaded anywhere except this server.</p>
+        </div>
+
+        <div class="processing hidden" id="processing">
+          <div class="proc-ring"><span></span><span></span><span></span></div>
+          <div class="proc-steps">
+            <b id="proc-title">Analyzing…</b>
+            <ol id="proc-list">
+              <li data-s="0">Decoding image</li>
+              <li data-s="1">Detecting face</li>
+              <li data-s="2">Aligning &amp; normalising</li>
+              <li data-s="3">Encoding descriptor</li>
+              <li data-s="4">Classifying</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+
+      <div class="card glass panel" id="panel-result">
+        <div class="result-empty" id="result-empty">
+          <div class="empty-art" aria-hidden="true">
+            <svg viewBox="0 0 160 120" width="170" height="128">
+              <ellipse cx="80" cy="104" rx="52" ry="7" fill="currentColor" opacity=".12"/>
+              <path d="M52 30h56l-6 74H58z" fill="none" stroke="currentColor" stroke-width="2.5" opacity=".5"/>
+              <path d="M50 30h60v10H50z" fill="currentColor" opacity=".25"/>
+              <path d="M62 40v64M80 40v64M98 40v64" stroke="currentColor" stroke-width="1.6" opacity=".35"/>
+              <circle cx="128" cy="34" r="12" fill="none" stroke="currentColor" stroke-width="2.5" opacity=".8"/>
+              <path d="M119 25c6 4 12 4 18 0" fill="none" stroke="currentColor" stroke-width="2" opacity=".7"/>
+            </svg>
+          </div>
+          <b>No analysis yet</b>
+          <p>Upload an image or capture a frame to see the detected face, confidence score, top-3
+             predictions and the player profile.</p>
+        </div>
+        <div id="result-body" class="hidden"></div>
+      </div>
+    </div>
+
+    <div class="card glass panel" id="dataset-notice" hidden></div>
+  </section>
+
+  <!-- ══════════════════════════ PLAYERS ══════════════════════════ -->
+  <section class="view hidden" id="view-players">
+    <div class="section-head">
+      <h2>Player profiles</h2>
+      <p id="players-sub">Catalogued players, their roles and whether the active model can recognise them.</p>
+    </div>
+    <div class="toolbar">
+      <div class="search">
+        <input type="search" id="player-search" placeholder="Search a player…" aria-label="Search players" />
+      </div>
+      <div class="filters" id="player-filters">
+        <button class="chip active" data-filter="all">All</button>
+        <button class="chip" data-filter="supported">Supported by model</button>
+        <button class="chip" data-filter="dataset">Has dataset images</button>
+      </div>
+    </div>
+    <div class="grid grid-4" id="players-grid"></div>
+  </section>
+
+  <!-- ══════════════════════════ PROFILE ══════════════════════════ -->
+  <section class="view hidden" id="view-profile">
+    <a class="back-link" href="#/players">← All players</a>
+    <div id="profile-body"></div>
+  </section>
+
+  <!-- ══════════════════════════ DASHBOARD ══════════════════════════ -->
+  <section class="view hidden" id="view-dashboard">
+    <div class="section-head">
+      <h2>Operations dashboard</h2>
+      <p>Everything below is derived from this deployment's database and the active model artefact.</p>
+    </div>
+    <div class="grid grid-4" id="stat-cards"></div>
+
+    <div class="grid grid-2">
+      <div class="card glass panel">
+        <div class="panel-head"><h3>Prediction distribution</h3><span class="chip-soft">by predicted player</span></div>
+        <div class="chart" id="chart-player-dist"></div>
+      </div>
+      <div class="card glass panel">
+        <div class="panel-head"><h3>Confidence distribution</h3><span class="chip-soft">all attempts</span></div>
+        <div class="chart" id="chart-confidence"></div>
+      </div>
+      <div class="card glass panel">
+        <div class="panel-head"><h3>Model performance</h3><span class="chip-soft">per-player F1 (held-out)</span></div>
+        <div class="chart" id="chart-performance"></div>
+        <p class="fine" id="performance-note"></p>
+      </div>
+      <div class="card glass panel">
+        <div class="panel-head"><h3>Last 14 days</h3><span class="chip-soft">identified vs unknown</span></div>
+        <div class="chart" id="chart-trend"></div>
+      </div>
+    </div>
+
+    <div class="card glass panel">
+      <div class="panel-head">
+        <h3>Recent predictions</h3>
+        <div class="head-actions">
+          <span class="chip-soft">audit trail (including rejections)</span>
+          <button class="btn btn-ghost btn-sm" id="btn-clear-history">Clear history</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="table" id="recent-table">
+          <thead><tr><th>Face</th><th>Predicted player</th><th>Confidence</th><th>Decision</th>
+                     <th>Latency</th><th>When</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════ MODEL ══════════════════════════ -->
+  <section class="view hidden" id="view-model">
+    <div class="section-head">
+      <h2>Model &amp; evaluation</h2>
+      <p>Training setup, honest held-out metrics, confusion matrix and model history.</p>
+    </div>
+    <div id="model-body"></div>
+
+    <div class="card glass panel">
+      <div class="panel-head">
+        <h3>Train a new model</h3>
+        <span class="chip-soft">POST /api/train · protected</span>
+      </div>
+      <div class="train-form">
+        <label>Dataset
+          <select id="train-dataset">
+            <option value="dataset">dataset/ (your images)</option>
+            <option value="dataset_demo">dataset_demo/ (fictional demo)</option>
+          </select>
+        </label>
+        <label>Classifier
+          <select id="train-classifier">
+            <option value="svc">SVM (recommended)</option>
+            <option value="logistic">Logistic regression</option>
+            <option value="rf">Random forest</option>
+            <option value="knn">k-NN</option>
+          </select>
+        </label>
+        <label>Feature extractor
+          <select id="train-extractor">
+            <option value="auto">auto (best available)</option>
+            <option value="hog_lbp">HOG + LBP (no downloads)</option>
+            <option value="sface">SFace embedding (needs ONNX)</option>
+            <option value="pixel">Pixel baseline</option>
+          </select>
+        </label>
+        <label>Augmented variants / image
+          <input type="number" id="train-augment" value="6" min="0" max="20" />
+        </label>
+        <label>Confidence threshold
+          <input type="number" id="train-threshold" step="0.01" min="0.05" max="0.99" value="0.55" />
+        </label>
+        <label>API key (if required)
+          <input type="password" id="train-key" placeholder="X-API-Key" autocomplete="off" />
+        </label>
+        <button class="btn btn-primary" id="btn-train">Start training</button>
+      </div>
+      <div class="train-progress hidden" id="train-progress">
+        <div class="bar"><span id="train-bar"></span></div>
+        <p class="fine" id="train-status">queued…</p>
+        <pre class="log" id="train-log"></pre>
+      </div>
+      <p class="fine">
+        Training runs inside the API process and blocks nothing else; the model is saved to
+        <code>models/model.pkl</code> and hot-loaded when it finishes. On a CPU-only machine a few
+        hundred images take roughly a minute.
+      </p>
+    </div>
+
+    <div class="card glass panel">
+      <div class="panel-head"><h3>Model versions</h3><span class="chip-soft">model_versions table</span></div>
+      <div class="table-wrap">
+        <table class="table" id="versions-table">
+          <thead><tr><th>Version</th><th>Classifier</th><th>Extractor</th><th>Classes</th>
+                     <th>Samples</th><th>Accuracy</th><th>F1</th><th>CV</th><th>Trained</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════ DATASET ══════════════════════════ -->
+  <section class="view hidden" id="view-dataset">
+    <div class="section-head">
+      <h2>Dataset</h2>
+      <p>The trainer reads image folders only; nothing is downloaded for you. You are responsible
+         for the licence of every file you add.</p>
+    </div>
+    <div id="dataset-body"></div>
+  </section>
+
+  <!-- ══════════════════════════ ABOUT / RESPONSIBLE AI ══════════════════════════ -->
+  <section class="view hidden" id="view-about">
+    <div class="section-head">
+      <h2>How it works &amp; responsible AI</h2>
+      <p>The full pipeline, its limits, and the rules this build follows.</p>
+    </div>
+    <div class="grid grid-2">
+      <div class="card glass panel">
+        <h3>Pipeline</h3>
+        <ol class="steps" id="about-steps">
+          <li><b>Dataset</b><span>Legally usable images in <code>dataset/&lt;Player_Name&gt;/</code></span></li>
+          <li><b>Validation</b><span>Size, readability and blur checks; duplicates flagged</span></li>
+          <li><b>Face detection</b><span>Haar cascade or YuNet CNN (auto-selected)</span></li>
+          <li><b>Alignment</b><span>Similarity transform on eyes + mouth to a canonical 112×112 pose</span></li>
+          <li><b>Augmentation</b><span>Mild jitter, lighting and compression variation (label preserving)</span></li>
+          <li><b>Feature extraction</b><span>HOG + uniform-LBP, or a 128-D SFace deep embedding</span></li>
+          <li><b>Classification</b><span>SVM / logistic regression / random forest / k-NN with scaling (+ optional PCA)</span></li>
+          <li><b>Evaluation</b><span>Stratified held-out split, per-class metrics, confusion matrix, k-fold CV</span></li>
+          <li><b>Inference</b><span>Same detect → align → encode → classify path, plus a rejection policy</span></li>
+        </ol>
+      </div>
+      <div class="card glass panel">
+        <h3>Limits &amp; safeguards</h3>
+        <ul class="checklist">
+          <li>Recognises only people present in the training dataset — everyone else is <b>Unknown</b>.</li>
+          <li>Refuses to answer below the confidence threshold, and when the top two classes are too close.</li>
+          <li>No demographic, emotion, age or gender inference. No identity search across photos.</li>
+          <li>Metrics come from a small self-supplied dataset; augmentation can leak between splits, so reported accuracy is optimistic.</li>
+          <li>Performance collapses with low light, extreme angles, occlusion (helmet, cap, mask), motion blur or heavy compression.</li>
+          <li>Not for surveillance, law enforcement, access control, hiring or any high-impact decision.</li>
+          <li>Face images are sensitive personal data: follow your local law (e.g. India's DPDP Act) and delete <code>data/uploads</code> when you are done.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card glass panel">
+      <h3>API surface</h3>
+      <div class="code-grid" id="api-list"></div>
+      <p class="fine">Interactive documentation: <a href="/docs" target="_blank" rel="noopener">/docs</a></p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div>
+      <b>INDIAN CRICKET FACE ID</b>
+      <span>A local computer-vision demonstration · OpenCV · scikit-learn · FastAPI</span>
+    </div>
+    <p class="footer-note">
+      Demonstration of facial identification technology. Do not use for surveillance, law
+      enforcement, access control or high-impact decisions without appropriate safeguards.
+      Recognises only people present in its training dataset.
+    </p>
+  </div>
+</footer>
+
+<div class="toast-stack" id="toasts" aria-live="polite"></div>
+
+<script src="/static/assets/js/particles.js"></script>
+<script src="/static/assets/js/api.js"></script>
+<script src="/static/assets/js/charts.js"></script>
+<script src="/static/assets/js/camera.js"></script>
+<script src="/static/assets/js/app.js"></script>
+</body>
+</html>

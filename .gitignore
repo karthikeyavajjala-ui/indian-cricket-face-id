@@ -1,0 +1,44 @@
+kf# python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# app data (uploads, SQLite DB, active-model pointer)
+data/*.db
+data/*.db-wal
+data/*.db-shm
+data/uploads/
+data/cache/
+data/active_model.json
+
+# trained model required by deployment
+!models/model.pkl
+!models/metrics.json
+
+# optional large model files
+models/face_detector/*.onnx
+models/face_models/*.onnx
+
+# your own dataset images - never commit personal data
+dataset/*/
+!dataset/README.md
+
+# env
+.env
+
+# os / editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# demo dataset images
+dataset_demo/*
+!dataset_demo/README.md

@@ -1,0 +1,33 @@
+# ============================================================================
+# INDIAN CRICKET FACE ID · runtime requirements
+#   python -m venv .venv
+#   source .venv/bin/activate        # Windows: .venv\Scripts\activate
+#   pip install -r requirements.txt
+# ============================================================================
+
+# ── web API ─────────────────────────────────────────────────────────────────
+fastapi>=0.110
+uvicorn[standard]>=0.27
+python-multipart>=0.0.9          # multipart uploads for POST /api/predict
+sqlalchemy>=2.0                  # players / datasets / predictions / model_versions
+pydantic>=2.5
+python-dotenv>=1.0               # optional .env loading
+
+# ── computer vision + machine learning ──────────────────────────────────────
+numpy>=1.24
+opencv-python>=4.8               # on a headless server use opencv-python-headless
+scikit-learn>=1.3
+joblib>=1.3
+scipy>=1.10
+
+# ── optional but recommended ────────────────────────────────────────────────
+pandas>=2.0                      # scripts/export_report.py (CSV/JSON exports)
+Pillow>=10.0                     # extra image-format support (WEBP edge cases)
+
+# ── optional extras (uncomment what you need) ───────────────────────────────
+# opencv-contrib-python>=4.8     # alternative build; either opencv package works
+# mediapipe>=0.10                # alternative face detector/landmarker
+#                                # (needs Python <=3.12 in many releases; the
+#                                #  code auto-detects it, see docs/ARCHITECTURE.md)
+# psycopg[binary]>=3.1           # PostgreSQL driver (IC_DATABASE_URL=postgresql+psycopg://…)
+# pytest>=8.0                    # tests/ (or use requirements-dev.txt)
